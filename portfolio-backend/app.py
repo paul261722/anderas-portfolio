@@ -1,38 +1,29 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 from flask_mail import Mail, Message
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
-# Gmail config (replace with your email + app password)
-app.config.update(
-    MAIL_SERVER='smtp.gmail.com',
-    MAIL_PORT=587,
-    MAIL_USE_TLS=True,
-    MAIL_USERNAME='your_email@gmail.com',
-    MAIL_PASSWORD='your_app_password'
-)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your-portfolio-email@gmail.com'      # 🔁 use portfolio Gmail
+app.config['MAIL_PASSWORD'] = 'nysoratbdrxmmkab'         # 🔁 use the app password
 
 mail = Mail(app)
 
-@app.route('/api/contact', methods=['POST'])
-def contact():
+@app.route('/api/portfolio-contact', methods=['POST'])
+def portfolio_contact():
     data = request.get_json()
-    name = data.get('name')
-    email = data.get('email')
-    message = data.get('message')
-
-    mail.send(
-        Message(
-            subject=f"Portfolio Message from {name}",
-            sender=app.config['MAIL_USERNAME'],
-            recipients=['your_email@gmail.com'],
-            body=f"From: {name}\nEmail: {email}\n\nMessage:\n{message}"
-        )
+    msg = Message(
+        subject=f"New Message from {data['name']}",
+        sender=data['email'],
+        recipients=['anderapaul22@gmail.com'],
+        body=data['message']
     )
-
-    return jsonify({'status': 'success', 'message': 'Message sent'})
+    mail.send(msg)
+    return jsonify({'status': 'success', 'message': 'Message sent!'})
 
 if __name__ == '__main__':
     app.run(debug=True)
